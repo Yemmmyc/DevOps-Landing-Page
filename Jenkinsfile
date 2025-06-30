@@ -26,10 +26,10 @@ pipeline {
             steps {
                 bat """
                     echo Removing old container on EC2...
-                    %PLINK% -i "%PPK_PATH%" %EC2_USER%@%EC2_HOST% "docker rm -f landing || true"
+                    %PLINK% -batch -i "%PPK_PATH%" %EC2_USER%@%EC2_HOST% "docker rm -f landing || true"
 
                     echo Running new container...
-                    %PLINK% -i "%PPK_PATH%" %EC2_USER%@%EC2_HOST% "docker run -d -p 80:80 --name landing %IMAGE_NAME%"
+                    %PLINK% -batch -i "%PPK_PATH%" %EC2_USER%@%EC2_HOST% "docker run -d -p 80:80 --name landing %IMAGE_NAME%"
                 """
             }
         }
