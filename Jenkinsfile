@@ -23,11 +23,11 @@ pipeline {
     stage('Deploy to EC2') {
       steps {
         bat """
-        echo Removing old container on EC2...
-        ssh -o StrictHostKeyChecking=no -i "%PEM_PATH%" %EC2_USER%@%EC2_HOST% "docker rm -f landing || true"
+        echo Stopping old container on EC2...
+        plink -batch -i "%SSH_KEY_PPK%" %SSH_USER%@%EC2_IP% "docker rm -f landing || true"
 
         echo Running new container...
-        ssh -i "%PEM_PATH%" %EC2_USER%@%EC2_HOST% "docker run -d -p 80:80 --name landing landing-page"
+        plink -batch -i "%SSH_KEY_PPK%" %SSH_USER%@%EC2_IP% "docker run -d -p 80:80 --name landing %DOCKER_IMAGE%"
         """
       }
     }
