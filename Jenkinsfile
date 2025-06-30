@@ -4,7 +4,7 @@ pipeline {
   environment {
     EC2_USER = 'ubuntu'
     EC2_HOST = '44.203.90.191'
-    PEM_PATH = 'C:\\Users\\IT-WORKSTATION\\Downloads\\yem_jenkins.pem' // Adjust this path!
+    PEM_PATH = 'C:/JenkinsKeys/yem_jenkins.pem' // Adjust this path!
   }
 
   stages {
