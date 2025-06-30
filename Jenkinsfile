@@ -3,8 +3,8 @@ pipeline {
 
   environment {
     EC2_USER = 'ubuntu'
-    EC2_HOST = '54.197.208.175'
-    PEM_PATH = 'C:\\Users\\IT-WORKSTATION\\Documents\\cloud_native.pem' // Adjust this path!
+    EC2_HOST = '44.203.90.191'
+    PEM_PATH = 'C:\Users\IT-WORKSTATION\Downloads\\yem_jenkins.pem' // Adjust this path!
   }
 
   stages {
