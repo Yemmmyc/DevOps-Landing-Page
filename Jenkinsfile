@@ -1,35 +1,37 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    EC2_USER = 'ubuntu'
-    EC2_HOST = '44.203.90.191'
-    PEM_PATH = 'C:/JenkinsKeys/yem_jenkins.pem' // Adjust this path!
-  }
-
-  stages {
-    stage('Clone Repository') {
-      steps {
-        git branch: 'main', url: 'https://github.com/Yemmmyc/DevOps-Landing-Page.git'
-      }
+    environment {
+        IMAGE_NAME = 'landing-page'
+        EC2_USER = 'ubuntu'
+        EC2_HOST = '44.203.90.191'
+        PPK_PATH = 'C:\\JenkinsKeys\\yem_jenkins.ppk'
+        PLINK = 'C:\\JenkinsKeys\\plink.exe'
     }
 
-    stage('Build Docker Image') {
-      steps {
-        bat 'docker build -t landing-page .'
-      }
-    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Yemmmyc/DevOps-Landing-Page.git'
+            }
+        }
 
-    stage('Deploy to EC2') {
-      steps {
-        bat """
-        echo Stopping old container on EC2...
-        plink -batch -i "%SSH_KEY_PPK%" %SSH_USER%@%EC2_IP% "docker rm -f landing || true"
+        stage('Build Docker Image') {
+            steps {
+                bat "docker build -t %IMAGE_NAME% ."
+            }
+        }
 
-        echo Running new container...
-        plink -batch -i "%SSH_KEY_PPK%" %SSH_USER%@%EC2_IP% "docker run -d -p 80:80 --name landing %DOCKER_IMAGE%"
-        """
-      }
+        stage('Deploy to EC2') {
+            steps {
+                bat """
+                    echo Removing old container on EC2...
+                    %PLINK% -i "%PPK_PATH%" %EC2_USER%@%EC2_HOST% "docker rm -f landing || true"
+
+                    echo Running new container...
+                    %PLINK% -i "%PPK_PATH%" %EC2_USER%@%EC2_HOST% "docker run -d -p 80:80 --name landing %IMAGE_NAME%"
+                """
+            }
+        }
     }
-  }
 }
