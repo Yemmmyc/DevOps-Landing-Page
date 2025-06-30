@@ -2,35 +2,25 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'landing-page'
+        PLINK = 'C:\\JenkinsKeys\\plink.exe'
+        PPK = 'C:\\JenkinsKeys\\yem_jenkins.ppk'
         EC2_USER = 'ubuntu'
         EC2_HOST = '44.203.90.191'
-        PPK_PATH = 'C:\\JenkinsKeys\\yem_jenkins.ppk'
-        PLINK = 'C:\\JenkinsKeys\\plink.exe'
+        HOSTKEY = 'ssh-ed25519 255 SHA256:A8IKU1jnJQ1O/3V3dp/R+JU02k6IyQ787NbgkpRADtk'
     }
 
     stages {
-        stage('Clone Repository') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Yemmmyc/DevOps-Landing-Page.git'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                bat "docker build -t %IMAGE_NAME% ."
-            }
-        }
-
         stage('Deploy to EC2') {
             steps {
-                bat """
+                script {
+                    bat """
                     echo Removing old container on EC2...
-                    %PLINK% -batch -i "%PPK_PATH%" %EC2_USER%@%EC2_HOST% "docker rm -f landing || true"
+                    %PLINK% -batch -i "%PPK%" -hostkey "%HOSTKEY%" %EC2_USER%@%EC2_HOST% "docker rm -f landing || true"
 
-                    echo Running new container...
-                    %PLINK% -batch -i "%PPK_PATH%" %EC2_USER%@%EC2_HOST% "docker run -d -p 80:80 --name landing %IMAGE_NAME%"
-                """
+                    echo Running new container on EC2...
+                    %PLINK% -batch -i "%PPK%" -hostkey "%HOSTKEY%" %EC2_USER%@%EC2_HOST% "docker run -d -p 80:80 --name landing landing-page"
+                    """
+                }
             }
         }
     }
