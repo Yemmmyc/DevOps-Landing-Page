@@ -13,7 +13,14 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/your-username/landing-page-repo.git'
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/Yemmmyc/DevOps-Landing-Page.git',
+                        credentialsId: '3ec38073-4bfc-4441-a706-72abb0f7cb66'
+                    ]]
+                ])
             }
         }
 
@@ -25,9 +32,9 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
                     bat """
-                    echo Logging in to Docker Hub...
+                    echo Logging into Docker Hub...
                     docker login -u %DOCKER_USER% -p %DOCKER_PASS%
                     docker push %IMAGE%
                     """
@@ -42,7 +49,7 @@ pipeline {
                     echo Removing old container on EC2...
                     "%PLINK%" -batch -i "%PPK%" -hostkey "%HOSTKEY%" %EC2_USER%@%EC2_HOST% "sudo docker rm -f landing || true"
 
-                    echo Pulling and running new container...
+                    echo Running new container on EC2...
                     "%PLINK%" -batch -i "%PPK%" -hostkey "%HOSTKEY%" %EC2_USER%@%EC2_HOST% "sudo docker run -d -p 80:80 --name landing %IMAGE%"
                     """
                 }
