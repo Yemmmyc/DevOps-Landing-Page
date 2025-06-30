@@ -15,10 +15,10 @@ pipeline {
                 script {
                     bat """
                     echo Removing old container on EC2...
-                    "%PLINK%" -batch -i "%PPK%" -hostkey "%HOSTKEY%" %EC2_USER%@%EC2_HOST% "docker rm -f landing || true"
+                    "%PLINK%" -batch -i "%PPK%" -hostkey "%HOSTKEY%" %EC2_USER%@%EC2_HOST% "sudo docker rm -f landing || true"
 
                     echo Running new container on EC2...
-                    "%PLINK%" -batch -i "%PPK%" -hostkey "%HOSTKEY%" %EC2_USER%@%EC2_HOST% "docker run -d -p 80:80 --name landing landing-page"
+                    "%PLINK%" -batch -i "%PPK%" -hostkey "%HOSTKEY%" %EC2_USER%@%EC2_HOST% "sudo docker run -d -p 80:80 --name landing landing-page"
                     """
                 }
             }
